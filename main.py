@@ -8,12 +8,19 @@ pygame.display.set_caption("Golfspel")
 
 BG = pygame.image.load("bg.png")
 
-def draw():
+PLAYER_WIDTH = 40
+PLAYER_HEIGHT = 40
+
+def draw(player):
     WIN.blit(BG, (0, 0))
+
+    pygame.draw.rect(WIN, "white", player)
     pygame.display.update()
 
 def main():
     run = True
+
+    player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     while run:
         for event in pygame.event.get():
@@ -21,7 +28,7 @@ def main():
                 run = False
                 break
 
-        draw()    
+        draw(player)    
 
     pygame.quit()
 
