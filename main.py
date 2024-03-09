@@ -2,25 +2,24 @@ import pygame
 import time
 import random
 
+pygame.init()
+
 WIDTH, HEIGHT = 1000, 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Golfspel")
 
 BG = pygame.image.load("bg.png")
 
-PLAYER_WIDTH = 40
-PLAYER_HEIGHT = 40
+player = [WIDTH/2, HEIGHT/2]
 
-def draw(player):
-    WIN.blit(BG, (0, 0))
+PLAYER_RADIUS = 10
 
-    pygame.draw.rect(WIN, "white", player)
-    pygame.display.update()
+timer = pygame.time.Clock   
+
+
 
 def main():
     run = True
-
-    player = pygame.Rect(200, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     while run:
         for event in pygame.event.get():
@@ -28,7 +27,23 @@ def main():
                 run = False
                 break
 
-        draw(player)    
+        WIN.blit(BG, (0, 0))
+
+        mx, my = pygame.mouse.get_pos()
+
+        dx = mx - player[0]
+        dy = my - player[1]
+        
+        length = min(100, (dx ** 2 + dy ** 2) ** 0.5)
+        
+        
+        end_point = (player[0] + length * dx / ((dx ** 2 + dy ** 2) ** 0.5),
+                     player[1] + length * dy / ((dx ** 2 + dy ** 2) ** 0.5))
+
+        pygame.draw.line(WIN, "black", (player), (end_point), 3)
+        pygame.draw.circle(WIN, "white", (player), PLAYER_RADIUS)
+    
+        pygame.display.flip()
 
     pygame.quit()
 
