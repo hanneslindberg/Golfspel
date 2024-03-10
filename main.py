@@ -36,9 +36,7 @@ def main():
         
         length = min(100, (dx ** 2 + dy ** 2) ** 0.5)
         
-        
-        end_point = (player[0] + length * dx / ((dx ** 2 + dy ** 2) ** 0.5),
-                     player[1] + length * dy / ((dx ** 2 + dy ** 2) ** 0.5))
+        end_point = (player[0] + length * dx / ((dx ** 2 + dy ** 2) ** 0.5), player[1] + length * dy / ((dx ** 2 + dy ** 2) ** 0.5))
 
         pygame.draw.line(WIN, "black", (player), (end_point), 3)
         pygame.draw.circle(WIN, "white", (player), PLAYER_RADIUS)
