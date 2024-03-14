@@ -13,7 +13,7 @@ pygame.display.set_caption("Golfspel")
 BG = pygame.image.load("bg.png")
 
 player = [WIDTH/2, HEIGHT/2]
-max_speed = 100
+max_speed = 36.2
 player_radius = 10
  
 left_click = False
@@ -38,8 +38,6 @@ def main():
 
         length = min(100, math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2))
         
-        end_point = (player[0] + length * direction_vector[0] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)), player[1] + length * direction_vector[1] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)))
-
         if left_click == True:
             if length != 0:
                 direction_vector[0] /= length
@@ -49,11 +47,14 @@ def main():
 
             new_ball_pos = [player[0] + direction_vector[0] * speed, player[1] + direction_vector[1] * speed]
 
-            player[0] = new_ball_pos[0]
-            player[1] = new_ball_pos[1]
+            alpha = 0.1
+            player[0] = (1 - alpha) * player[0] + alpha * new_ball_pos[0]
+            player[1] = (1 - alpha) * player[1] + alpha * new_ball_pos[1]
 
-        pygame.draw.line(WIN, "black", (player), (end_point), 3)
-        pygame.draw.circle(WIN, "white", (player), player_radius)
+        end_point = (player[0] + length * direction_vector[0], player[1] + length * direction_vector[1])
+
+        pygame.draw.line(WIN, "black", (int(player[0]), int(player[1])), (int(end_point[0]), int(end_point[1])), 3)
+        pygame.draw.circle(WIN, "white", (int(player[0]), int(player[1])), player_radius)
     
         pygame.display.flip()
             
@@ -61,7 +62,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-    #Crashar för att man inte kan dividera med "0"
