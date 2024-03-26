@@ -13,7 +13,7 @@ pygame.display.set_caption("Golfspel")
 BG = pygame.image.load("bg.png")
 
 player = [WIDTH/2, HEIGHT/2]
-max_speed = 100
+max_speed = 110
 player_radius = 10
  
 left_click = False
@@ -23,6 +23,17 @@ def main():
 
     while run:
         left_click = False
+
+        mx, my = pygame.mouse.get_pos()
+
+        direction_vector = [mx - player[0], my - player[1]]
+
+        length = min(110, math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2))
+        
+        end_point = (player[0] + length * direction_vector[0] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)),
+                     player[1] + length * direction_vector[1] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)))
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -32,14 +43,7 @@ def main():
 
         WIN.blit(BG, (0, 0))
 
-        mx, my = pygame.mouse.get_pos()
-
-        direction_vector = [mx - player[0], my - player[1]]
-
-        length = min(100, math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2))
         
-        end_point = (player[0] + length * direction_vector[0] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)), player[1] + length * direction_vector[1] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)))
-
         if left_click == True:
             if length != 0:
                 direction_vector[0] /= length
@@ -52,9 +56,10 @@ def main():
             player[0] = new_ball_pos[0]
             player[1] = new_ball_pos[1]
 
+        pygame.draw.circle(WIN, "black", [800, 100], player_radius)
         pygame.draw.line(WIN, "black", (player), (end_point), 3)
         pygame.draw.circle(WIN, "white", (player), player_radius)
-    
+        
         pygame.display.flip()
             
     pygame.quit()
