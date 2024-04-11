@@ -70,14 +70,14 @@ def main():
         WIN.blit(BG, (0, 0))
 
         
-        # if left_click == True:
-        #     if length != 0:
-        #         direction_vector[0] /= length
-        #         direction_vector[1] /= length
+        if left_click == True:
+            if length != 0:
+                direction_vector[0] /= length
+                direction_vector[1] /= length
             
-        #     speed = max_speed * (length / 100)
+            speed = max_speed * (length / 100)
 
-        #     new_ball_pos = [player[0] + direction_vector[0] * speed, player[1] + direction_vector[1] * speed]
+            new_ball_pos = [player[0] + direction_vector[0] * speed, player[1] + direction_vector[1] * speed]
 
             # i = 0
             # while i <= 100:
