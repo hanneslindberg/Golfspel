@@ -67,10 +67,9 @@ def create_ball(radius, pos):
     space.add(body, shape, pivot)
     return shape
 
-
 ball = create_ball(player_radius, pos)
 
-class Club:
+class Club():
     def __init__(self, pos):
         self.original_image = club_image
         self.angle = 0
@@ -83,7 +82,10 @@ class Club:
 
     def draw(self, surface):
         self.image = pygame.transform.rotate(self.original_image, self.angle)
-        surface.blit(self.image, self.rect)
+        surface.blit(self.image, 
+            (self.rect.centerx - self.image.get_width() / 2,
+            self.rect.centery - self.image.get_height() / 2)        
+        )
 
 club = Club(ball.body.position)
 
@@ -108,7 +110,7 @@ def main():
         club_angle = math.degrees(math.atan2(y_dist, x_dist))
         club.update(club_angle)
         club.draw(WIN)
-
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
