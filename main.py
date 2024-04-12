@@ -15,9 +15,9 @@ WIDTH, HEIGHT = 1000, 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Golfspel")
 
-BG = pygame.image.load("bg.png")
+BG = pygame.image.load("img/bg.png")
 
-player = [100, 300]
+player = [120, 500]
 max_speed = 110
 player_radius = 10
 
@@ -26,8 +26,8 @@ static_body = space.static_body
 draw_options = pymunk.pygame_util.DrawOptions(WIN)
 
 wall_color = (5, 102, 8)
-wall_width = 20
-wall_height = 600
+wall_width = 125
+wall_height = 10
 wall_x = (WIDTH - wall_width) 
 wall_y = (HEIGHT,  wall_height)
 
@@ -35,7 +35,10 @@ walls = [
     [(980, 0), (980, 600), (1000, 600), (1000, 0)],
     [(0, 0), (0, 600), (20, 600), (20, 0)],
     [(20, 0), (20, 20), (220, 20), (220, 0)],
-    [(220, 0), (220, 600), (240, 600), (240, 0)]
+    [(220, 0), (220, 600), (240, 600), (240, 0)],
+    [(20, 580), (20, 600), (220, 600), (220, 580)],
+    [(20, 200), (20, 210), (145, 210), (145, 200)],
+    [(95, 350), (95, 360), (220, 360), (220, 350)]
 ]
 
 def create_walls(poly_dims):
@@ -57,7 +60,7 @@ def create_ball(radius, pos):
     shape.elasticity = 0.8
     pivot = pymunk.PivotJoint(static_body, body, (0, 0), (0, 0))
     pivot.max_bias = 0
-    pivot.max_force = 2000
+    pivot.max_force = 1000
 
     space.add(body, shape, pivot)
     return shape
@@ -77,7 +80,7 @@ def main():
         space.step(1 / FPS)
 
         WIN.blit(BG, (0, 0))
-        pygame.draw.rect(WIN, wall_color, (220, 0, wall_width, wall_height))
+        pygame.draw.rect(WIN, wall_color, (95, 350, wall_width, wall_height))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -134,7 +137,7 @@ def main():
             player[0] = new_ball_pos[0]
             player[1] = new_ball_pos[1]
 
-        pygame.draw.circle(WIN, "black", [800, 100], player_radius)
+        pygame.draw.circle(WIN, "black", [120, 80], player_radius)
         #pygame.draw.line(WIN, "black", (player), (end_point), 3)
         #pygame.draw.circle(WIN, "white", (player), player_radius)
         
