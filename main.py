@@ -1,4 +1,5 @@
 # https://www.youtube.com/watch?v=txcOqDhrwBo&t=1962s
+# Lägga in bilder på pymunk object 38:00
 # ha olika typer av väggar som stutsväggar och klibbiga väggar
 
 
@@ -16,8 +17,9 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Golfspel")
 
 BG = pygame.image.load("img/bg.png")
+club_image = pygame.image.load("img/club.png").convert_alpha()
 
-player = [120, 500]
+pos = [120, 500]
 max_speed = 110
 player_radius = 10
 
@@ -65,7 +67,25 @@ def create_ball(radius, pos):
     space.add(body, shape, pivot)
     return shape
 
-ball = create_ball(player_radius, player)
+
+ball = create_ball(player_radius, pos)
+
+class Club:
+    def __init__(self, pos):
+        self.original_image = club_image
+        self.angle = 0
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        self.rect = self.image.get_rect()
+        self.rect.center = pos
+
+    def update(self, angle):
+        self.angle = angle
+
+    def draw(self, surface):
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        surface.blit(self.image, self.rect)
+
+club = Club(ball.body.position)
 
 clock = pygame.time.Clock()
 FPS = 60
@@ -82,34 +102,39 @@ def main():
         WIN.blit(BG, (0, 0))
         pygame.draw.rect(WIN, wall_color, (95, 350, wall_width, wall_height))
 
+        mouse_pos = pygame.mouse.get_pos()
+        x_dist = ball.body.position[0] - mouse_pos[0]
+        y_dist = -(ball.body.position[1] - mouse_pos[1])
+        club_angle = math.degrees(math.atan2(y_dist, x_dist))
+        club.update(club_angle)
+        club.draw(WIN)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 ball.body.apply_impulse_at_local_point((2000, 0), (0, 0)) 
 
-        left_click = False
-        
-        mx, my = pygame.mouse.get_pos()
+        #left_click = False
 
-        direction_vector = [mx - player[0], my - player[1]]
+        #direction_vector = [mx - pos[0], my - pos[1]]
 
-        length = min(110, math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2))
+        #length = min(110, math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2))
         
-        end_point = (player[0] + length * direction_vector[0] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)),
-                     player[1] + length * direction_vector[1] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)))
+        #end_point = (pos[0] + length * direction_vector[0] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)),
+                     #pos[1] + length * direction_vector[1] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)))
 
 
         
         
-        if left_click == True:
-            if length != 0:
-                direction_vector[0] /= length
-                direction_vector[1] /= length
+        #if left_click == True:
+            #if length != 0:
+                #direction_vector[0] /= length
+                #direction_vector[1] /= length
             
-            speed = max_speed * (length / 100)
+            #speed = max_speed * (length / 100)
 
-            new_ball_pos = [player[0] + direction_vector[0] * speed, player[1] + direction_vector[1] * speed]
+            #new_ball_pos = [pos[0] + direction_vector[0] * speed, pos[1] + direction_vector[1] * speed]
 
             # i = 0
             # while i <= 100:
@@ -134,12 +159,12 @@ def main():
 
 
 
-            player[0] = new_ball_pos[0]
-            player[1] = new_ball_pos[1]
+           # pos[0] = new_ball_pos[0]
+            #pos[1] = new_ball_pos[1]
 
         pygame.draw.circle(WIN, "black", [120, 80], player_radius)
-        #pygame.draw.line(WIN, "black", (player), (end_point), 3)
-        #pygame.draw.circle(WIN, "white", (player), player_radius)
+        #pygame.draw.line(WIN, "black", (pos), (end_point), 3)
+        #pygame.draw.circle(WIN, "white", (pos), player_radius)
         
         space.debug_draw(draw_options)
         pygame.display.flip()
