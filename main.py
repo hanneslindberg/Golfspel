@@ -1,4 +1,5 @@
 # https://www.youtube.com/watch?v=txcOqDhrwBo&t=1962s
+# ha olika typer av väggar som stutsväggar och klibbiga väggar
 
 
 import pygame
@@ -18,21 +19,45 @@ BG = pygame.image.load("bg.png")
 
 player = [100, 300]
 max_speed = 110
-player_radius = 15
+player_radius = 10
 
 space = pymunk.Space()
 static_body = space.static_body
 draw_options = pymunk.pygame_util.DrawOptions(WIN)
+
+wall_color = (5, 102, 8)
+wall_width = 20
+wall_height = 600
+wall_x = (WIDTH - wall_width) 
+wall_y = (HEIGHT,  wall_height)
+
+walls = [
+    [(980, 0), (980, 600), (1000, 600), (1000, 0)],
+    [(0, 0), (0, 600), (20, 600), (20, 0)],
+    [(20, 0), (20, 20), (220, 20), (220, 0)],
+    [(220, 0), (220, 600), (240, 600), (240, 0)]
+]
+
+def create_walls(poly_dims):
+    body = pymunk.Body(body_type = pymunk.Body.STATIC)
+    body.position = ((0, 0))
+    shape = pymunk.Poly(body, poly_dims)
+    shape.elasticity = 0.8
+
+    space.add(body, shape)
+
+for c in walls:
+    create_walls(c)
 
 def create_ball(radius, pos):
     body = pymunk.Body()
     body.position = pos
     shape = pymunk.Circle(body, radius)
     shape.mass = 5
+    shape.elasticity = 0.8
     pivot = pymunk.PivotJoint(static_body, body, (0, 0), (0, 0))
     pivot.max_bias = 0
-    pivot.max_force = 1000
-
+    pivot.max_force = 2000
 
     space.add(body, shape, pivot)
     return shape
@@ -51,9 +76,17 @@ def main():
         clock.tick(FPS)
         space.step(1 / FPS)
 
+        WIN.blit(BG, (0, 0))
+        pygame.draw.rect(WIN, wall_color, (220, 0, wall_width, wall_height))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                ball.body.apply_impulse_at_local_point((2000, 0), (0, 0)) 
+
         left_click = False
         
-
         mx, my = pygame.mouse.get_pos()
 
         direction_vector = [mx - player[0], my - player[1]]
@@ -64,14 +97,7 @@ def main():
                      player[1] + length * direction_vector[1] / (math.sqrt(direction_vector[0] ** 2 + direction_vector[1] ** 2)))
 
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                ball.body.apply_impulse_at_local_point((1000, 0), (0, 0)) 
-
-        WIN.blit(BG, (0, 0))
-
+        
         
         if left_click == True:
             if length != 0:
