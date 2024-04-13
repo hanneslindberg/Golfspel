@@ -24,6 +24,10 @@ club_image = pygame.image.load("img/club.png").convert_alpha()
 clock = pygame.time.Clock()
 FPS = 60
 
+space = pymunk.Space()
+static_body = space.static_body
+draw_options = pymunk.pygame_util.DrawOptions(WIN)
+
 # Variables
 PINK = (255, 105, 180)
 DARK_GREEN = (14, 58, 0)
@@ -46,11 +50,6 @@ wall_w = 125
 wall_h = 10
 shade = (0, 30, 0)
 
-
-space = pymunk.Space()
-static_body = space.static_body
-draw_options = pymunk.pygame_util.DrawOptions(WIN)
-
 # Create starting points
 starting_points = [
     (120, 500),
@@ -65,17 +64,36 @@ holes = [
     (900, 400)
 ]
 
-# Create walls
+# Wall dimentions
 walls = [
     [(980, 0), (980, 600), (1000, 600), (1000, 0)],
     [(0, 0), (0, 600), (20, 600), (20, 0)],
-    [(20, 0), (20, 20), (220, 20), (220, 0)],
+    [(20, 0), (20, 20), (980, 20), (980, 0)],
     [(220, 0), (220, 600), (240, 600), (240, 0)],
-    [(20, 580), (20, 600), (220, 600), (220, 580)],
+    [(20, 580), (20, 600), (980, 600), (980, 580)],
     [(20, 200), (20, 210), (145, 210), (145, 200)],
-    [(95, 350), (95, 360), (220, 360), (220, 350)]
+    [(95, 350), (95, 360), (220, 360), (220, 350)],
+    [(400, 140), (420, 140), (420, 580), (400, 580)],
+    [(420, 140), (620, 140), (620, 160), (420, 160)],
+    [(620, 20), (620, 420), (640, 420), (640, 20)],
+    [(800, 160), (800, 580), (820, 580), (820, 160)],
+    [(241, 21), (320, 21), (241, 100)],
+    [(290, 140), (400, 140), (400, 400)],
+    [(241, 200), (241, 500), (330, 400)],
+    [(800, 400), (800, 580), (720, 580)]
 ]
 
+bounce_walls = [
+    [(410, 440), (410, 570), (425, 570), (425, 440)],
+    [(835, 575), (965, 575), (965, 590), (835, 590)] # ------------------------- Kanske borde ha en bunker här istället
+]
+
+bunkers = [
+    [(785, 160), 70], 
+    [(850, 190), 50]
+]
+
+# Create walls
 def create_walls(poly_dims):
     body = pymunk.Body(body_type = pymunk.Body.STATIC)
     body.position = ((0, 0))
@@ -86,6 +104,40 @@ def create_walls(poly_dims):
 
 for c in walls:
     create_walls(c)
+
+# Create bounce walls
+def create_bounce_walls(poly_dims):
+    body = pymunk.Body(body_type = pymunk.Body.STATIC)
+    body.position = ((0, 0))
+    shape = pymunk.Poly(body, poly_dims)
+    shape.elasticity = 3
+
+    space.add(body, shape)
+
+for c in bounce_walls:
+    create_bounce_walls(c)
+
+def create_bunkers(bunker_dims):
+    bunker_pos = bunker_dims[0]
+    body = pymunk.Body(body_type = pymunk.Body.STATIC)
+    body.position = bunker_pos
+    shape = pymunk.Circle(body, bunker_dims[1])
+    shape.friction = 1
+
+    space.add(body, shape)
+
+for c in bunkers:
+    create_bunkers(c)
+
+# ------------------------------------------------------------------------------------ Detta funka inte riktigt
+# def ball_passes_over_bunker(arbiter, space, data):
+#     ball_shape, bunker_shape = arbiter.shapes
+#     if ball_shape.body.position[1] < bunker_shape.body.position[1]:
+#         return False
+#     return True
+
+# handler = space.add_collision_handler(0, 0)
+# handler.pre_solve = ball_passes_over_bunker
 
 # Create the ball
 def create_ball(radius, pos):
@@ -150,7 +202,7 @@ while run:
     pygame.draw.rect(WIN, shade, (0, 20, 22, 562))
     pygame.draw.rect(WIN, shade,  (220, 20, 22, 562))
 
-    # Water
+    # Bunkers
     pygame.draw.circle(WIN, BUNKER, (785, 160), 70)
     pygame.draw.circle(WIN, BUNKER, (850, 190), 50)
 
@@ -158,6 +210,7 @@ while run:
     pygame.draw.polygon(WIN, i_wall_c, ((241, 21), (320, 21), (241, 100)))
     pygame.draw.polygon(WIN, i_wall_c, ((290, 140), (400, 140), (400, 400)))
     pygame.draw.polygon(WIN, i_wall_c, ((241, 200), (241, 500), (330, 400)))
+    pygame.draw.polygon(WIN, i_wall_c, ((800, 400), (800, 580), (720, 580)))
 
     pygame.draw.rect(WIN, i_wall_c, (95, 350, wall_w, wall_h))
     pygame.draw.rect(WIN, i_wall_c, (21, 200, wall_w, wall_h))
@@ -168,15 +221,15 @@ while run:
     pygame.draw.rect(WIN, o_wall_c, (0, 580, 1000, 20))
     pygame.draw.rect(WIN, o_wall_c, (980, 20, 20, 560))
     pygame.draw.rect(WIN, o_wall_c, (220, 20, 20, 560))
-    pygame.draw.rect(WIN, o_wall_c, (400, 140, 20, 560))
+    pygame.draw.rect(WIN, o_wall_c, (400, 140, 20, 440))
     pygame.draw.rect(WIN, o_wall_c, (420, 140, 200, 20))
     pygame.draw.rect(WIN, o_wall_c, (620, 20, 20, 400))
     pygame.draw.rect(WIN, o_wall_c, (800, 160, 20, 420))
 
     # Bouncy walls
     pygame.draw.rect(WIN, PINK, (410, 440, 15, 130))
+    pygame.draw.rect(WIN, PINK, (835, 575, 130, 15))
     
-
     # Draw ball
     WIN.blit(ball_image, (ball.body.position - (player_radius, player_radius)))
 
@@ -239,6 +292,4 @@ while run:
     #space.debug_draw(draw_options) # -------------------------------------------------göm denna när du är klar med att måla alla väggar!!!
     pygame.display.flip()
     
-        
 pygame.quit()
-
