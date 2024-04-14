@@ -117,6 +117,7 @@ def create_bounce_walls(poly_dims):
 for c in bounce_walls:
     create_bounce_walls(c)
 
+# Create bunkers ------------------------------------------------------------------------ Försök få att funka
 def create_bunkers(bunker_dims):
     bunker_pos = bunker_dims[0]
     body = pymunk.Body(body_type = pymunk.Body.STATIC)
@@ -128,16 +129,6 @@ def create_bunkers(bunker_dims):
 
 for c in bunkers:
     create_bunkers(c)
-
-# ------------------------------------------------------------------------------------ Detta funka inte riktigt
-# def ball_passes_over_bunker(arbiter, space, data):
-#     ball_shape, bunker_shape = arbiter.shapes
-#     if ball_shape.body.position[1] < bunker_shape.body.position[1]:
-#         return False
-#     return True
-
-# handler = space.add_collision_handler(0, 0)
-# handler.pre_solve = ball_passes_over_bunker
 
 # Create the ball
 def create_ball(radius, pos):
@@ -154,6 +145,7 @@ def create_ball(radius, pos):
     return shape
 
 ball = create_ball(player_radius, pos)
+
 
 class Club():
     def __init__(self, pos):
@@ -175,7 +167,7 @@ class Club():
 
 club = Club(ball.body.position)
 
-power_bar = pygame.Surface((10, 20))
+power_bar = pygame.Surface((10, 15))
 power_bar.fill("red")
 
 run = True
