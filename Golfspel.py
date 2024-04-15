@@ -146,7 +146,6 @@ def create_ball(radius, pos):
 
 ball = create_ball(player_radius, pos)
 
-
 class Club():
     def __init__(self, pos):
         self.original_image = club_image
