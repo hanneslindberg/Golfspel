@@ -1,8 +1,10 @@
 # https://www.youtube.com/watch?v=txcOqDhrwBo&t=1962s
 
-# ha olika typer av väggar som stutsväggar och klibbiga väggar
-
 # Fråga Eirik hur man gör de groparna och kullarna
+
+# Lägg till tid hur lång tid det tar för alla banor
+
+# Lägg till main menu
 
 import pygame
 import pymunk
@@ -80,7 +82,7 @@ walls = [
     [(241, 21), (320, 21), (241, 100)],
     [(290, 140), (400, 140), (400, 400)],
     [(241, 200), (241, 500), (330, 400)],
-    [(800, 400), (800, 580), (720, 580)]
+    [(800, 400), (800, 580), (720, 580)],
 ]
 
 bounce_walls = [
@@ -90,7 +92,8 @@ bounce_walls = [
 
 bunkers = [
     [(785, 160), 70], 
-    [(850, 190), 50]
+    [(850, 190), 50],
+    [(600, 670), 130]
 ]
 
 # Create walls
@@ -196,6 +199,7 @@ while run:
     # Bunkers
     pygame.draw.circle(WIN, BUNKER, (785, 160), 70)
     pygame.draw.circle(WIN, BUNKER, (850, 190), 50)
+    pygame.draw.circle(WIN, i_wall_c, (600, 670), 130)
 
     # Inside walls
     pygame.draw.polygon(WIN, i_wall_c, ((241, 21), (320, 21), (241, 100)))
