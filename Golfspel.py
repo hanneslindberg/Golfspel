@@ -186,9 +186,11 @@ while run:
     
     if start_game == False:
         WIN.blit(BG, (0, 0))
-
+        taking_shot = False
         if start_button.draw(WIN):
-            start_game = True          
+            ball.body.position = [120, 500]
+            ball.body.velocity = (0, 0)
+            start_game = True 
         if quit_button.draw(WIN):
             run = False
     else:
@@ -300,7 +302,6 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-    #space.debug_draw(draw_options) # -------------------------------------------------göm denna när du är klar med att måla alla väggar!!!
     pygame.display.flip()
     
 pygame.quit()
