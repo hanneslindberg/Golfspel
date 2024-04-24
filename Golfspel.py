@@ -41,10 +41,12 @@ PINK = (255, 105, 180)
 DARK_GREEN = (14, 58, 0)
 BUNKER = (255, 240, 152)
 
-pos = [120, 500]
+pos = [550, 450]
 max_speed = 110
 player_radius = 8
 hole_rad = 10
+pushSpeed = 0
+pushSpeedAdd = 0.1
 
 taking_shot = True
 powering_up = False
@@ -98,9 +100,10 @@ bounce_walls = [
 ]
 
 bunkers = [
-    [(785, 160), 50], 
-    [(850, 190), 30],
-    [(600, 670), 130]
+    [795, 160, 50], 
+    [835, 190, 30],
+    [590, 635, 130],
+    [900, 650, 130]
 ]
 
 # Create walls
@@ -126,19 +129,6 @@ def create_bounce_walls(poly_dims):
 
 for c in bounce_walls:
     create_bounce_walls(c)
-
-# Create bunkers ------------------------------------------------------------------------ Försök få att funka
-def create_bunkers(bunker_dims):
-    bunker_pos = bunker_dims[0]
-    body = pymunk.Body(body_type = pymunk.Body.STATIC)
-    body.position = bunker_pos
-    shape = pymunk.Circle(body, bunker_dims[1])
-    shape.friction = 1
-
-    space.add(body, shape)
-
-for c in bunkers:
-    create_bunkers(c)
 
 # Create the ball
 def create_ball(radius, pos):
@@ -188,7 +178,7 @@ while run:
         WIN.blit(BG, (0, 0))
         taking_shot = False
         if start_button.draw(WIN):
-            ball.body.position = [120, 500]
+            ball.body.position = pos
             ball.body.velocity = (0, 0)
             start_game = True 
         if quit_button.draw(WIN):
@@ -215,7 +205,8 @@ while run:
         # Bunkers
         pygame.draw.circle(WIN, BUNKER, (795, 160), 50)
         pygame.draw.circle(WIN, BUNKER, (835, 190), 30)
-        pygame.draw.circle(WIN, i_wall_c, (600, 670), 130)
+        pygame.draw.circle(WIN, BUNKER, (590, 635), 130)
+        pygame.draw.circle(WIN, BUNKER, (900, 650), 130)
 
         # Inside walls
         pygame.draw.polygon(WIN, i_wall_c, ((241, 21), (320, 21), (241, 100)))
@@ -272,6 +263,40 @@ while run:
             club.update(club_angle)
             club.draw(WIN)
 
+        distance_to_hill = math.hypot(ball.body.position.x - 900, ball.body.position.y - 400)
+
+        if distance_to_hill < 70:
+            pushDir1 = math.atan2(ball.body.position[1] - (400 + 70), ball.body.position[0] - (900 + 70))
+            print(pushDir1)
+            pushSpeed += pushSpeedAdd
+            if 0 < pushDir1 < 1.57:
+                # ball.body.velocity[0] += pushSpeed
+                # ball.body.velocity[1] += pushSpeed
+                print("första kvadranten")
+            elif 1.57 < pushDir1 < math.pi:
+                # ball.body.velocity[0] -= pushSpeed
+                # ball.body.velocity[1] += pushSpeed
+                print("andra kvadranten")
+            elif -1.57 < pushDir1 < 0:
+                # ball.body.velocity[0] += pushSpeed
+                # ball.body.velocity[1] -= pushSpeed
+                print("tredje kvadranten")
+            elif -1.57 > pushDir1 > -math.pi:
+                # ball.body.velocity[0] -= pushSpeed
+                # ball.body.velocity[1] -= pushSpeed
+                print("fjärde kvadranten")
+        else:
+            pushSpeed = 0
+
+        # Check if ball is in bunker
+        for b in bunkers:
+            distance_to_bunker = math.hypot(ball.body.position.x - b[0], ball.body.position.y - b[1])
+            if distance_to_bunker <= b[2] - player_radius:
+                in_bunker = True
+                ball.body.velocity *= 0.4
+            else:
+                in_bunker = False
+
         # Poweing up while holding
         if powering_up == True:
             force += 200 * force_direction
@@ -283,12 +308,15 @@ while run:
                     (ball.body.position[0] - 30 + (b * 15), 
                     (ball.body.position[1] + 30))
                 )
+                
         elif powering_up == False and taking_shot == True:
             x_impulse = math.cos(math.radians(club_angle))
             y_impulse = math.sin(math.radians(club_angle))
             ball.body.apply_impulse_at_local_point((force * -x_impulse, force * y_impulse), (0, 0)) 
             force = 0
             force_direction = 1
+
+        
 
     # Event handler
     for event in pygame.event.get():
