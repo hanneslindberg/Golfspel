@@ -11,6 +11,7 @@ import pymunk
 import pymunk.pygame_util
 import math
 import button
+from pymunk.vec2d import Vec2d
 
 # Initiate pygaem
 pygame.init()
@@ -38,15 +39,17 @@ draw_options = pymunk.pygame_util.DrawOptions(WIN)
 
 # Variables
 PINK = (255, 105, 180)
-DARK_GREEN = (14, 58, 0)
 BUNKER = (255, 240, 152)
+HILL = (119, 216, 87)
+INNER_HILL = (161, 228, 134)
 
-pos = [550, 450]
+pos = [120, 500]
 max_speed = 110
 player_radius = 8
 hole_rad = 10
 pushSpeed = 0
-pushSpeedAdd = 0.1
+pushSpeedAdd = 0.4
+Vec2d(0, 0)
 
 taking_shot = True
 powering_up = False
@@ -95,14 +98,14 @@ walls = [
 ]
 
 bounce_walls = [
-    [(410, 440), (410, 570), (425, 570), (425, 440)],
-    #[(835, 575), (965, 575), (965, 590), (835, 590)] # ------------------------- Kanske borde ha en bunker här istället
+    [(410, 440), (410, 590), (425, 590), (425, 440)],
+    [(425, 440), (425, 590), (480, 590)]
 ]
 
 bunkers = [
     [795, 160, 50], 
     [835, 190, 30],
-    [590, 635, 130],
+    [600, 635, 130],
     [900, 650, 130]
 ]
 
@@ -123,7 +126,7 @@ def create_bounce_walls(poly_dims):
     body = pymunk.Body(body_type = pymunk.Body.STATIC)
     body.position = ((0, 0))
     shape = pymunk.Poly(body, poly_dims)
-    shape.elasticity = 6
+    shape.elasticity = 3
 
     space.add(body, shape)
 
@@ -175,7 +178,7 @@ while run:
     space.step(1 / FPS)
     
     if start_game == False:
-        WIN.blit(BG, (0, 0))
+        WIN.fill("black")
         taking_shot = False
         if start_button.draw(WIN):
             ball.body.position = pos
@@ -187,49 +190,42 @@ while run:
         # Draw background
         WIN.blit(BG, (0, 0))
         # Hill
-        pygame.draw.circle(WIN, DARK_GREEN, (900, 400), 70)
-        # Draw holes
-        pygame.draw.circle(WIN, "black", (120, 80), hole_rad)
-        pygame.draw.circle(WIN, "black", (570, 80), hole_rad)
-        pygame.draw.circle(WIN, "black", (900, 400), hole_rad)
-        
-        # --- Inside wall shadow
-        pygame.draw.rect(WIN, shade, (95, 350, wall_w + 2, wall_h + 2))
-        pygame.draw.rect(WIN, shade, (21, 200, wall_w + 2, wall_h + 2))
+        # pygame.draw.circle(WIN, HILL, (900, 400), 70)
+        # pygame.draw.circle(WIN, INNER_HILL, (900, 400), 50)
+        # # Draw holes
+        # pygame.draw.circle(WIN, "black", (120, 80), hole_rad)
+        # pygame.draw.circle(WIN, "black", (570, 80), hole_rad)
+        # pygame.draw.circle(WIN, "black", (900, 400), hole_rad)
 
-        # --- Outside wall shadow
-        pygame.draw.rect(WIN, shade, (0, 0, 1002, 22))
-        pygame.draw.rect(WIN, shade, (0, 20, 22, 562))
-        pygame.draw.rect(WIN, shade,  (220, 20, 22, 562))
+        # # Bunkers
+        # pygame.draw.circle(WIN, BUNKER, (795, 160), 50)
+        # pygame.draw.circle(WIN, BUNKER, (835, 190), 30)
+        # pygame.draw.circle(WIN, BUNKER, (600, 635), 130)
+        # pygame.draw.circle(WIN, BUNKER, (900, 650), 130)
 
-        # Bunkers
-        pygame.draw.circle(WIN, BUNKER, (795, 160), 50)
-        pygame.draw.circle(WIN, BUNKER, (835, 190), 30)
-        pygame.draw.circle(WIN, BUNKER, (590, 635), 130)
-        pygame.draw.circle(WIN, BUNKER, (900, 650), 130)
+        # # Inside walls
+        # pygame.draw.polygon(WIN, i_wall_c, ((241, 21), (320, 21), (241, 100)))
+        # pygame.draw.polygon(WIN, i_wall_c, ((290, 140), (400, 140), (400, 400)))
+        # pygame.draw.polygon(WIN, i_wall_c, ((241, 200), (241, 500), (330, 400)))
+        # pygame.draw.polygon(WIN, i_wall_c, ((800, 400), (800, 580), (720, 580)))
 
-        # Inside walls
-        pygame.draw.polygon(WIN, i_wall_c, ((241, 21), (320, 21), (241, 100)))
-        pygame.draw.polygon(WIN, i_wall_c, ((290, 140), (400, 140), (400, 400)))
-        pygame.draw.polygon(WIN, i_wall_c, ((241, 200), (241, 500), (330, 400)))
-        pygame.draw.polygon(WIN, i_wall_c, ((800, 400), (800, 580), (720, 580)))
+        # pygame.draw.rect(WIN, i_wall_c, (95, 350, wall_w, wall_h))
+        # pygame.draw.rect(WIN, i_wall_c, (21, 200, wall_w, wall_h))
 
-        pygame.draw.rect(WIN, i_wall_c, (95, 350, wall_w, wall_h))
-        pygame.draw.rect(WIN, i_wall_c, (21, 200, wall_w, wall_h))
+        # # Outside walls
+        # pygame.draw.rect(WIN, o_wall_c, (0, 0, 1000, 20))
+        # pygame.draw.rect(WIN, o_wall_c, (0, 20, 20, 560))
+        # pygame.draw.rect(WIN, o_wall_c, (0, 580, 1000, 20))
+        # pygame.draw.rect(WIN, o_wall_c, (980, 20, 20, 560))
+        # pygame.draw.rect(WIN, o_wall_c, (220, 20, 20, 560))
+        # pygame.draw.rect(WIN, o_wall_c, (400, 140, 20, 440))
+        # pygame.draw.rect(WIN, o_wall_c, (420, 140, 200, 20))
+        # pygame.draw.rect(WIN, o_wall_c, (620, 20, 20, 400))
+        # pygame.draw.rect(WIN, o_wall_c, (800, 160, 20, 420))
 
-        # Outside walls
-        pygame.draw.rect(WIN, o_wall_c, (0, 0, 1000, 20))
-        pygame.draw.rect(WIN, o_wall_c, (0, 20, 20, 560))
-        pygame.draw.rect(WIN, o_wall_c, (0, 580, 1000, 20))
-        pygame.draw.rect(WIN, o_wall_c, (980, 20, 20, 560))
-        pygame.draw.rect(WIN, o_wall_c, (220, 20, 20, 560))
-        pygame.draw.rect(WIN, o_wall_c, (400, 140, 20, 440))
-        pygame.draw.rect(WIN, o_wall_c, (420, 140, 200, 20))
-        pygame.draw.rect(WIN, o_wall_c, (620, 20, 20, 400))
-        pygame.draw.rect(WIN, o_wall_c, (800, 160, 20, 420))
-
-        # Bouncy walls
-        pygame.draw.rect(WIN, PINK, (410, 440, 15, 130))
+        # # Bouncy walls
+        # pygame.draw.rect(WIN, PINK, (410, 440, 15, 151))
+        # pygame.draw.polygon(WIN, PINK, ((425, 440), (425, 590), (480, 590)))
         
         # Draw ball
         WIN.blit(ball_image, (ball.body.position - (player_radius, player_radius)))
@@ -266,25 +262,20 @@ while run:
         distance_to_hill = math.hypot(ball.body.position.x - 900, ball.body.position.y - 400)
 
         if distance_to_hill < 70:
-            pushDir1 = math.atan2(ball.body.position[1] - (400 + 70), ball.body.position[0] - (900 + 70))
-            print(pushDir1)
+            pushDir1 = math.atan2(ball.body.position[1] - 400, ball.body.position[0] - 900)
             pushSpeed += pushSpeedAdd
             if 0 < pushDir1 < 1.57:
-                # ball.body.velocity[0] += pushSpeed
-                # ball.body.velocity[1] += pushSpeed
-                print("första kvadranten")
+                ball.body.velocity += Vec2d(pushSpeed, 0)
+                ball.body.velocity += Vec2d(0, pushSpeed)
             elif 1.57 < pushDir1 < math.pi:
-                # ball.body.velocity[0] -= pushSpeed
-                # ball.body.velocity[1] += pushSpeed
-                print("andra kvadranten")
+                ball.body.velocity -= Vec2d(pushSpeed, 0)
+                ball.body.velocity += Vec2d(0, pushSpeed)
             elif -1.57 < pushDir1 < 0:
-                # ball.body.velocity[0] += pushSpeed
-                # ball.body.velocity[1] -= pushSpeed
-                print("tredje kvadranten")
+                ball.body.velocity += Vec2d(pushSpeed, 0)
+                ball.body.velocity -= Vec2d(0, pushSpeed)
             elif -1.57 > pushDir1 > -math.pi:
-                # ball.body.velocity[0] -= pushSpeed
-                # ball.body.velocity[1] -= pushSpeed
-                print("fjärde kvadranten")
+                ball.body.velocity -= Vec2d(pushSpeed, 0)
+                ball.body.velocity -= Vec2d(0, pushSpeed)
         else:
             pushSpeed = 0
 
