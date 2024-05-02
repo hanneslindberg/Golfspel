@@ -1,20 +1,17 @@
-# https://www.youtube.com/watch?v=txcOqDhrwBo&t=1962s
-
-# Fråga Eirik hur man gör de groparna och kullarna
-
 # Lägg till tid hur lång tid det tar för alla banor
-
-# Lägg till main menu
 
 import pygame
 import pymunk
 import pymunk.pygame_util
 import math
+import random
 import button
 from pymunk.vec2d import Vec2d
 
-# Initiate pygaem
+# Initiate pygame and sound
 pygame.init()
+pygame.mixer.init()
+
 BG = pygame.image.load("img/bg.png")
 # Create window
 WIDTH, HEIGHT = 1000, 600
@@ -23,6 +20,10 @@ pygame.display.set_caption("Golfspel")
 
 clock = pygame.time.Clock()
 FPS = 60
+
+# Sound effects
+sound_played = False
+swing_sound = pygame.mixer.Sound('golf_swing.mp3')
 
 # Load images
 ball_image = pygame.image.load("img/ball.png").convert_alpha()
@@ -44,7 +45,9 @@ HILL = (119, 216, 87)
 INNER_HILL = (161, 228, 134)
 
 pos = [120, 500]
-max_speed = 110
+speed_for_hole = 300
+max_force_magnitude = 700
+min_force_magnitude = 700
 player_radius = 8
 hole_rad = 10
 pushSpeed = 0
@@ -189,43 +192,6 @@ while run:
     else:
         # Draw background
         WIN.blit(BG, (0, 0))
-        # Hill
-        # pygame.draw.circle(WIN, HILL, (900, 400), 70)
-        # pygame.draw.circle(WIN, INNER_HILL, (900, 400), 50)
-        # # Draw holes
-        # pygame.draw.circle(WIN, "black", (120, 80), hole_rad)
-        # pygame.draw.circle(WIN, "black", (570, 80), hole_rad)
-        # pygame.draw.circle(WIN, "black", (900, 400), hole_rad)
-
-        # # Bunkers
-        # pygame.draw.circle(WIN, BUNKER, (795, 160), 50)
-        # pygame.draw.circle(WIN, BUNKER, (835, 190), 30)
-        # pygame.draw.circle(WIN, BUNKER, (600, 635), 130)
-        # pygame.draw.circle(WIN, BUNKER, (900, 650), 130)
-
-        # # Inside walls
-        # pygame.draw.polygon(WIN, i_wall_c, ((241, 21), (320, 21), (241, 100)))
-        # pygame.draw.polygon(WIN, i_wall_c, ((290, 140), (400, 140), (400, 400)))
-        # pygame.draw.polygon(WIN, i_wall_c, ((241, 200), (241, 500), (330, 400)))
-        # pygame.draw.polygon(WIN, i_wall_c, ((800, 400), (800, 580), (720, 580)))
-
-        # pygame.draw.rect(WIN, i_wall_c, (95, 350, wall_w, wall_h))
-        # pygame.draw.rect(WIN, i_wall_c, (21, 200, wall_w, wall_h))
-
-        # # Outside walls
-        # pygame.draw.rect(WIN, o_wall_c, (0, 0, 1000, 20))
-        # pygame.draw.rect(WIN, o_wall_c, (0, 20, 20, 560))
-        # pygame.draw.rect(WIN, o_wall_c, (0, 580, 1000, 20))
-        # pygame.draw.rect(WIN, o_wall_c, (980, 20, 20, 560))
-        # pygame.draw.rect(WIN, o_wall_c, (220, 20, 20, 560))
-        # pygame.draw.rect(WIN, o_wall_c, (400, 140, 20, 440))
-        # pygame.draw.rect(WIN, o_wall_c, (420, 140, 200, 20))
-        # pygame.draw.rect(WIN, o_wall_c, (620, 20, 20, 400))
-        # pygame.draw.rect(WIN, o_wall_c, (800, 160, 20, 420))
-
-        # # Bouncy walls
-        # pygame.draw.rect(WIN, PINK, (410, 440, 15, 151))
-        # pygame.draw.polygon(WIN, PINK, ((425, 440), (425, 590), (480, 590)))
         
         # Draw ball
         WIN.blit(ball_image, (ball.body.position - (player_radius, player_radius)))
@@ -235,14 +201,23 @@ while run:
             ball_x_dist = abs(ball.body.position[0] - hole[0])
             ball_y_dist = abs(ball.body.position[1] - hole[1])
             ball_dist = math.sqrt((ball_x_dist ** 2) + (ball_y_dist ** 2))
+
+            ball_speed = math.sqrt((ball.body.velocity[0] ** 2) + (ball.body.velocity[1] ** 2))
+
             if ball_dist <= hole_rad:
-                ball.body.velocity = (0, 0)
-                if hole == holes[0]:
-                    ball.body.position = starting_points[1]
-                if hole == holes[1]:
-                    ball.body.position = starting_points[2]
-                if hole == holes[2]:
-                    ball.body.position = starting_points[0]
+                if ball_speed >= speed_for_hole:
+                    random_force = (random.uniform(-1, 1), random.uniform(-1, 1))
+                    force_magnitude = random.uniform(min_force_magnitude, max_force_magnitude)
+                    random_force = (random_force[0] * force_magnitude, random_force[1] * force_magnitude)
+                    ball.body.apply_impulse_at_local_point(random_force, (0, 0))
+                else:
+                    ball.body.velocity = (0, 0)
+                    if hole == holes[0]:
+                        ball.body.position = starting_points[1]
+                    if hole == holes[1]:
+                        ball.body.position = starting_points[2]
+                    if hole == holes[2]:
+                        ball.body.position = starting_points[0]
 
         # Adding velocity to the ball
         taking_shot = True
@@ -290,24 +265,23 @@ while run:
 
         # Poweing up while holding
         if powering_up == True:
-            force += 200 * force_direction
+            force += 100 * force_direction
             if force >= max_force or force <= 0:
                 force_direction *= -1
-            #draw power bars
+            # Draw power bars
             for b in range(math.ceil(force / 2000)):
                 WIN.blit(power_bar, 
                     (ball.body.position[0] - 30 + (b * 15), 
                     (ball.body.position[1] + 30))
                 )
-                
-        elif powering_up == False and taking_shot == True:
+        elif powering_up == False and taking_shot == True: # Lägg till ljud här
             x_impulse = math.cos(math.radians(club_angle))
             y_impulse = math.sin(math.radians(club_angle))
             ball.body.apply_impulse_at_local_point((force * -x_impulse, force * y_impulse), (0, 0)) 
             force = 0
             force_direction = 1
-
-        
+            if int(ball.body.velocity[0]) != 0 or int(ball.body.velocity[1]) != 0:
+                swing_sound.play()
 
     # Event handler
     for event in pygame.event.get():
