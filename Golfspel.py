@@ -22,10 +22,18 @@ clock = pygame.time.Clock()
 FPS = 60
 
 # Sound effects
-sound_played = False
-swing_sound = pygame.mixer.Sound('golf_swing.mp3')
+background_music = False
+bunker_sound_played = False
+swing_sound = pygame.mixer.Sound("sound/golf_swing.mp3")
+swing_sound.set_volume(0.7)
+menu_music = pygame.mixer.Sound("sound/dire_dire_docks.mp3")
+menu_music.set_volume(0.5)
+ball_in_hole = pygame.mixer.Sound("sound/ball_in_hole.mp3")
+ball_in_hole.set_volume(0.7)
+bunker_sound = pygame.mixer.Sound("sound/bunker.mp3")
 
 # Load images
+menu_bg = pygame.image.load("img/menu_bg.jpg")
 ball_image = pygame.image.load("img/ball.png").convert_alpha()
 club_image = pygame.image.load("img/club.png").convert_alpha()
 start_image = pygame.image.load("img/start_image.png").convert_alpha()
@@ -181,7 +189,11 @@ while run:
     space.step(1 / FPS)
     
     if start_game == False:
-        WIN.fill("black")
+        if not background_music:
+            menu_music.play()
+            background_music = True
+    
+        WIN.blit(pygame.transform.scale(menu_bg, (int(menu_bg.get_width() * 2), int(menu_bg.get_height() * 2))), (0, 0))
         taking_shot = False
         if start_button.draw(WIN):
             ball.body.position = pos
@@ -211,6 +223,8 @@ while run:
                     random_force = (random_force[0] * force_magnitude, random_force[1] * force_magnitude)
                     ball.body.apply_impulse_at_local_point(random_force, (0, 0))
                 else:
+                    ball_in_hole.play()
+                    
                     ball.body.velocity = (0, 0)
                     if hole == holes[0]:
                         ball.body.position = starting_points[1]
@@ -234,8 +248,9 @@ while run:
             club.update(club_angle)
             club.draw(WIN)
 
+        # Chek if ball is on hill
         distance_to_hill = math.hypot(ball.body.position.x - 900, ball.body.position.y - 400)
-
+        # Push ball in right direction
         if distance_to_hill < 70:
             pushDir1 = math.atan2(ball.body.position[1] - 400, ball.body.position[0] - 900)
             pushSpeed += pushSpeedAdd
@@ -260,8 +275,13 @@ while run:
             if distance_to_bunker <= b[2] - player_radius:
                 in_bunker = True
                 ball.body.velocity *= 0.4
+
+                if not bunker_sound_played:
+                    bunker_sound.play()
+                    bunker_sound_played = True
             else:
                 in_bunker = False
+                bunker_sound_played = False
 
         # Poweing up while holding
         if powering_up == True:
