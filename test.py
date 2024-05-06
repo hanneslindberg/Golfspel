@@ -23,7 +23,7 @@ FPS = 60
 
 # Sound effects
 background_music = False
-bunker_sound_played = False
+
 swing_sound = pygame.mixer.Sound("sound/golf_swing.mp3")
 swing_sound.set_volume(0.7)
 menu_music = pygame.mixer.Sound("sound/dire_dire_docks.mp3")
@@ -275,16 +275,11 @@ while run:
             if distance_to_bunker <= b[2] - player_radius:
                 in_bunker = True
                 ball.body.velocity *= 0.4
-
-                if not bunker_sound_played:
-                    bunker_sound.play()
-                    bunker_sound_played = True
+                bunker_sound.play()
             else:
                 in_bunker = False
 
-        if not in_bunker:
-            bunker_sound_played = False
-                
+
         # Poweing up while holding
         if powering_up == True:
             force += 100 * force_direction
@@ -314,6 +309,8 @@ while run:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 start_game = False
+            if event.key == pygame.K_r:
+                ball.body.position = [120, 500]
         if event.type == pygame.QUIT:
             run = False
 
