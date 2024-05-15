@@ -275,16 +275,10 @@ while run:
             if distance_to_bunker <= b[2] - player_radius:
                 in_bunker = True
                 ball.body.velocity *= 0.4
-
-                if not bunker_sound_played:
-                    bunker_sound.play()
-                    bunker_sound_played = True
-            else:
+            elif distance_to_bunker > b[2] - player_radius:
                 in_bunker = False
 
-        if not in_bunker:
-            bunker_sound_played = False
-                
+
         # Poweing up while holding
         if powering_up == True:
             force += 100 * force_direction
