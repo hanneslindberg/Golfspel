@@ -52,7 +52,7 @@ BUNKER = (255, 240, 152)
 HILL = (119, 216, 87)
 INNER_HILL = (161, 228, 134)
 
-pos = [900, 500]
+pos = [120, 500]
 speed_for_hole = 300
 max_force_magnitude = 700
 min_force_magnitude = 700
@@ -113,6 +113,7 @@ bounce_walls = [
     [(425, 440), (425, 590), (480, 590)]
 ]
 
+# Create bunker dimentions
 bunkers = [
     [795, 160, 50], 
     [835, 190, 30],
@@ -160,6 +161,7 @@ def create_ball(radius, pos):
 
 ball = create_ball(player_radius, pos)
 
+# Create golf club
 class Club():
     def __init__(self, pos):
         self.original_image = club_image
@@ -188,13 +190,17 @@ while run:
     clock.tick(FPS)
     space.step(1 / FPS)
     
+    # "If" statment to create a menu screen
     if start_game == False:
         if not background_music:
             menu_music.play()
             background_music = True
-    
+        
         WIN.blit(pygame.transform.scale(menu_bg, (int(menu_bg.get_width() * 2), int(menu_bg.get_height() * 2))), (0, 0))
+        
+        # Set taking shot to false to not be able to shoot if you press "start"
         taking_shot = False
+
         if start_button.draw(WIN):
             ball.body.position = pos
             ball.body.velocity = (0, 0)
@@ -204,7 +210,6 @@ while run:
     else:
         # Draw background
         WIN.blit(BG, (0, 0))
-        
         # Draw ball
         WIN.blit(ball_image, (ball.body.position - (player_radius, player_radius)))
 
@@ -248,9 +253,9 @@ while run:
             club.update(club_angle)
             club.draw(WIN)
 
-        # Chek if ball is on hill
+        # Chek distance between ball and hill
         distance_to_hill = math.hypot(ball.body.position.x - 900, ball.body.position.y - 400)
-        # Push ball in right direction
+        # Push ball in right direction if it's on the hill
         if distance_to_hill < 70:
             pushDir1 = math.atan2(ball.body.position[1] - 400, ball.body.position[0] - 900)
             pushSpeed += pushSpeedAdd
@@ -267,6 +272,7 @@ while run:
                 ball.body.velocity -= Vec2d(pushSpeed, 0)
                 ball.body.velocity -= Vec2d(0, pushSpeed)
         else:
+            # Reset push speed after the ball is of the hill
             pushSpeed = 0
 
         # Check if ball is in bunker
@@ -275,9 +281,8 @@ while run:
             if distance_to_bunker <= b[2] - player_radius:
                 in_bunker = True
                 ball.body.velocity *= 0.4
-            elif distance_to_bunker > b[2] - player_radius:
+            else:
                 in_bunker = False
-
 
         # Poweing up while holding
         if powering_up == True:
@@ -290,7 +295,8 @@ while run:
                     (ball.body.position[0] - 30 + (b * 15), 
                     (ball.body.position[1] + 30))
                 )
-        elif powering_up == False and taking_shot == True: # Lägg till ljud här
+        # Taking the shot
+        elif powering_up == False and taking_shot == True:
             x_impulse = math.cos(math.radians(club_angle))
             y_impulse = math.sin(math.radians(club_angle))
             ball.body.apply_impulse_at_local_point((force * -x_impulse, force * y_impulse), (0, 0)) 
@@ -301,16 +307,19 @@ while run:
 
     # Event handler
     for event in pygame.event.get():
+        # Check for mouseinput
         if event.type == pygame.MOUSEBUTTONDOWN and taking_shot == True:
             powering_up = True
         if event.type == pygame.MOUSEBUTTONUP and taking_shot == True:
             powering_up = False
+        # Check for keypresses (menu)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 start_game = False
+        # Check if the game is exited with the cross in the topright
         if event.type == pygame.QUIT:
             run = False
-
+    
     pygame.display.flip()
     
 pygame.quit()
