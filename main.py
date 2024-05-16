@@ -1,5 +1,3 @@
-# Lägg till tid hur lång tid det tar för alla banor
-
 import pygame
 import pymunk
 import pymunk.pygame_util
@@ -8,12 +6,12 @@ import random
 import button
 from pymunk.vec2d import Vec2d
 
-# Initiate pygame and sound
+# Initsiera pygame och ljud
 pygame.init()
 pygame.mixer.init()
 
 BG = pygame.image.load("img/bg.png")
-# Create window
+# Skapa ett fönster
 WIDTH, HEIGHT = 1000, 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Golfspel")
@@ -21,7 +19,7 @@ pygame.display.set_caption("Golfspel")
 clock = pygame.time.Clock()
 FPS = 60
 
-# Sound effects
+# Ladda ljud effekter 
 background_music = False
 bunker_sound_played = False
 swing_sound = pygame.mixer.Sound("sound/golf_swing.mp3")
@@ -32,7 +30,7 @@ ball_in_hole = pygame.mixer.Sound("sound/ball_in_hole.mp3")
 ball_in_hole.set_volume(0.7)
 bunker_sound = pygame.mixer.Sound("sound/bunker.mp3")
 
-# Load images
+# Ladda bilder
 menu_bg = pygame.image.load("img/menu_bg.jpg")
 ball_image = pygame.image.load("img/ball.png").convert_alpha()
 club_image = pygame.image.load("img/club.png").convert_alpha()
@@ -46,7 +44,7 @@ space = pymunk.Space()
 static_body = space.static_body
 draw_options = pymunk.pygame_util.DrawOptions(WIN)
 
-# Variables
+# Variabel
 PINK = (255, 105, 180)
 BUNKER = (255, 240, 152)
 HILL = (119, 216, 87)
@@ -75,21 +73,21 @@ wall_w = 125
 wall_h = 10
 shade = (0, 30, 0)
 
-# Create starting points
+# Skapa start punkter
 starting_points = [
     (120, 500),
     (320, 525), 
     (520, 230)
 ]
 
-# Create holes
+# Skapa hål
 holes = [
     (120, 80),
     (570, 80), 
     (900, 400)
 ]
 
-# Wall dimentions
+# Vägg dimentioner
 walls = [
     [(980, 0), (980, 600), (1000, 600), (1000, 0)],
     [(0, 0), (0, 600), (20, 600), (20, 0)],
@@ -108,12 +106,13 @@ walls = [
     [(800, 400), (800, 580), (720, 580)],
 ]
 
+# Studsvägg dimentioner
 bounce_walls = [
     [(410, 440), (410, 590), (425, 590), (425, 440)],
     [(425, 440), (425, 590), (480, 590)]
 ]
 
-# Create bunker dimentions
+# Bunker dimentioner
 bunkers = [
     [795, 160, 50], 
     [835, 190, 30],
@@ -121,7 +120,7 @@ bunkers = [
     [900, 650, 130]
 ]
 
-# Create walls
+# Skapa själva väggarna
 def create_walls(poly_dims):
     body = pymunk.Body(body_type = pymunk.Body.STATIC)
     body.position = ((0, 0))
@@ -133,7 +132,7 @@ def create_walls(poly_dims):
 for c in walls:
     create_walls(c)
 
-# Create bounce walls
+# Skapa studsväggen
 def create_bounce_walls(poly_dims):
     body = pymunk.Body(body_type = pymunk.Body.STATIC)
     body.position = ((0, 0))
@@ -145,7 +144,7 @@ def create_bounce_walls(poly_dims):
 for c in bounce_walls:
     create_bounce_walls(c)
 
-# Create the ball
+# Skapa bollen
 def create_ball(radius, pos):
     body = pymunk.Body()
     body.position = pos
@@ -161,7 +160,7 @@ def create_ball(radius, pos):
 
 ball = create_ball(player_radius, pos)
 
-# Create golf club
+# Skapa klubban
 class Club():
     def __init__(self, pos):
         self.original_image = club_image
@@ -190,7 +189,7 @@ while run:
     clock.tick(FPS)
     space.step(1 / FPS)
     
-    # "If" statment to create a menu screen
+    # If-sats för att skapa en huvudmeny
     if start_game == False:
         if not background_music:
             menu_music.play()
@@ -198,7 +197,7 @@ while run:
         
         WIN.blit(pygame.transform.scale(menu_bg, (int(menu_bg.get_width() * 2), int(menu_bg.get_height() * 2))), (0, 0))
         
-        # Set taking shot to false to not be able to shoot if you press "start"
+        # Säg att "taking_shot" är falsk om vi är i menyn för att inte skuta när man klickar start
         taking_shot = False
 
         if start_button.draw(WIN):
@@ -208,12 +207,12 @@ while run:
         if quit_button.draw(WIN):
             run = False
     else:
-        # Draw background
+        # Måla bakgrunden
         WIN.blit(BG, (0, 0))
-        # Draw ball
+        # Visa bollen
         WIN.blit(ball_image, (ball.body.position - (player_radius, player_radius)))
 
-        # Check if ball is in the hole
+        # Kolla om bollen är i hålet
         for hole in holes:
             ball_x_dist = abs(ball.body.position[0] - hole[0])
             ball_y_dist = abs(ball.body.position[1] - hole[1])
@@ -238,12 +237,12 @@ while run:
                     if hole == holes[2]:
                         ball.body.position = starting_points[0]
 
-        # Adding velocity to the ball
+        # Säg att om vi står stilla (eller nästan) ska vi kunna skjuta
         taking_shot = True
         if int(ball.body.velocity[0]) != 0 or int(ball.body.velocity[1]) != 0:
             taking_shot = False
 
-        # Shooting direction
+        # Vilket håll vi skjuter
         if taking_shot == True:
             mouse_pos = pygame.mouse.get_pos()
             club.rect.center = ball.body.position
@@ -253,9 +252,9 @@ while run:
             club.update(club_angle)
             club.draw(WIN)
 
-        # Chek distance between ball and hill
+        # Kolla vilket avstånd vi har mellan bollen och kullen
         distance_to_hill = math.hypot(ball.body.position.x - 900, ball.body.position.y - 400)
-        # Push ball in right direction if it's on the hill
+        # Rör bollen mot det hållet om den är på kullen
         if distance_to_hill < 70:
             pushDir1 = math.atan2(ball.body.position[1] - 400, ball.body.position[0] - 900)
             pushSpeed += pushSpeedAdd
@@ -272,30 +271,31 @@ while run:
                 ball.body.velocity -= Vec2d(pushSpeed, 0)
                 ball.body.velocity -= Vec2d(0, pushSpeed)
         else:
-            # Reset push speed after the ball is of the hill
+            # Ställ om pushSpeed för att inte bli ivägtryckt jättesnabbt de andra gångerna du hamnar på kullen
             pushSpeed = 0
 
-        # Check if ball is in bunker
-        for b in bunkers:
-            distance_to_bunker = math.hypot(ball.body.position.x - b[0], ball.body.position.y - b[1])
-            if distance_to_bunker <= b[2] - player_radius:
+        # Kolla om bollen är i bunkern
+        for bunker in bunkers:
+            # Kolla avståndet mellan bollen och bunkern och sakta ner bollen om den är i bunkern
+            distance_to_bunker = math.hypot(ball.body.position.x - bunker[0], ball.body.position.y - bunker[1])
+            if distance_to_bunker <= bunker[2] - player_radius:
                 in_bunker = True
                 ball.body.velocity *= 0.4
             else:
                 in_bunker = False
 
-        # Poweing up while holding
+        # Förstärka kraften när vi håller musknappen
         if powering_up == True:
             force += 100 * force_direction
             if force >= max_force or force <= 0:
                 force_direction *= -1
-            # Draw power bars
+            # Måla power barsen
             for b in range(math.ceil(force / 2000)):
                 WIN.blit(power_bar, 
                     (ball.body.position[0] - 30 + (b * 15), 
                     (ball.body.position[1] + 30))
                 )
-        # Taking the shot
+        # Ta själva skottet
         elif powering_up == False and taking_shot == True:
             x_impulse = math.cos(math.radians(club_angle))
             y_impulse = math.sin(math.radians(club_angle))
@@ -305,18 +305,18 @@ while run:
             if int(ball.body.velocity[0]) != 0 or int(ball.body.velocity[1]) != 0:
                 swing_sound.play()
 
-    # Event handler
+    # Event hanterare
     for event in pygame.event.get():
-        # Check for mouseinput
+        # Kolla efter musinput
         if event.type == pygame.MOUSEBUTTONDOWN and taking_shot == True:
             powering_up = True
         if event.type == pygame.MOUSEBUTTONUP and taking_shot == True:
             powering_up = False
-        # Check for keypresses (menu)
+        # Kolla efter tanjenttryck (menu)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 start_game = False
-        # Check if the game is exited with the cross in the topright
+        # Kolla om spelet är avslutat med krysset längst upp till höger
         if event.type == pygame.QUIT:
             run = False
     
